@@ -147,20 +147,23 @@ class OnlineKMeans(object):
             
         
 
-def main(k_traget,stream):
-    online_k_means = OnlineKMeans(k_target=20)
+def main(k_target,stream):
+    model, vector_length = load_model() 
+    online_k_means = OnlineKMeans(k_target=20, vector_length=vector_length)
     for vector in stream:
+        #TODO extract text from stream
+        # convert stream to vector
         online_k_means.add(vector)
     print online_k_means.clusters.keys()
 
 if __name__ =="__main__":
     parser = argparse.ArgumentParser(
-                            description='Algorithm for Sequential K means')
+                            description='Algorithm for Online K means')
     parser.add_argument(
-                    'cluster_count',help='Number of clusters',type=int )
+                    '-k','--k', type=int, help='Target number of clusters ', default= False, required=True)
     parser.add_argument(
-                    'test_file_path',help='Path to test data file',type=str)
+                    '-i', '--input',help='Input data file',required=True, type=str)
    
     args = parser.parse_args()
-    main(num_of_clusters=args.cluster_count,test_file_path=args.test_file_path)
-    #main(num_of_clusters=10,test_file_path='')
+    with open(args.input) as datafile:
+        main(args.k, datafile)
