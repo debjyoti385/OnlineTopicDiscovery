@@ -3,3 +3,4 @@ virtual_env/
 *.pyc
 sample/
 .idea/
+model/
