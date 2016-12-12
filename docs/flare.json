@@ -1,0 +1,64 @@
+{
+  "name": "clusters",
+  "children": [
+        {
+          "name": "cluster 0",
+          "children": [
+            {"name": "AgglomerativeCluster", "size": 3938},
+            {"name": "CommunityStructure", "size": 3938},
+            {"name": "HierarchicalCluster", "size": 3938},
+            {"name": "MergeEdge", "size": 3938}
+            ]
+        },
+        {
+          "name": "cluster 1",
+          "children": [
+            {"name": "BetweennessCentrality", "size": 3938},
+            {"name": "LinkDistance", "size": 3938},
+            {"name": "MaxFlowMinCut", "size": 3938},
+            {"name": "ShortestPaths", "size": 3938},
+            {"name": "SpanningTree", "size": 3938}
+          ]
+        },
+        {
+          "name": "cluster 2",
+          "children": [
+            {"name": "This will have a sentence which will be really big", "size": 3938},
+            {"name": "ColorInterpolator", "size": 3938},
+            {"name": "DateInterpolator", "size": 3938},
+            {"name": "Interpolator", "size": 3938},
+            {"name": "MatrixInterpolator", "size": 3938},
+            {"name": "NumberInterpolator", "size": 3938},
+            {"name": "ObjectInterpolator", "size": 3938},
+            {"name": "PointInterpolator", "size": 3938},
+            {"name": "RectangleInterpolator", "size": 3938}
+          ]
+        },
+        {
+          "name": "cluster 3",
+          "children": [
+            {"name": "Converters", "size": 3938},
+            {"name": "DelimitedTextConverter", "size": 3938},
+            {"name": "GraphMLConverter", "size": 3938},
+            {"name": "IDataConverter", "size": 3938},
+            {"name": "JSONConverter", "size": 3938}
+          ]
+        },
+      {
+        "name": "cluster 4",
+        "children": [
+          {"name": "DirtySprite", "size": 3938},
+          {"name": "LineSprite", "size": 3938},
+          {"name": "RectSprite", "size": 3938},
+          {"name": "TextSprite", "size": 3938}
+        ]
+      },
+      {
+        "name": "cluster 5",
+        "children": [
+          {"name": "FlareVis", "size": 3938},
+          {"name": "TextSprite", "size": 3938}
+        ]
+      }
+  ]
+}

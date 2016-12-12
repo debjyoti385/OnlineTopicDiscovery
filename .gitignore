@@ -2,3 +2,4 @@ data/
 virtual_env/
 *.pyc
 sample/
+.idea/
