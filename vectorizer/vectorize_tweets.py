@@ -41,10 +41,10 @@ def main(inputdir=rootdir,model=False, modelfile=MODEL_LOCATION):
             model.alpha -= 0.002
             model.min_alpha = model.alpha
         
-        print 'Training done \nStoring model at location ', MODEL_LOCATION
-        model.save(MODEL_LOCATION)
+        print 'Training done \nStoring model at location ', modelfile
+        model.save(modelfile)
 
-    model_loaded = gensim.models.Doc2Vec.load(MODEL_LOCATION)
+    model_loaded = gensim.models.Doc2Vec.load(modelfile)
     if model_loaded:
         print 'Loaded'
     #print 'Vector is - ',model_loaded.docvecs["SENT_part-02753-372"],' || Length of vector is - ',len(model_loaded.docvecs)
