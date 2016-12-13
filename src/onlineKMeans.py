@@ -176,7 +176,7 @@ class OnlineKMeans(object):
                 if self.q[self.r] >= self.k:
                     self.r += 1
                     self.q.insert(self.r, 0)
-                    self.f.insert(self.r,  1.1* self.f[self.r -1])
+                    self.f.insert(self.r,  1.05* self.f[self.r -1])
             else:
                 cluster_idx = self.get_nearest_cluster(vector)                
                 self.clusters[cluster_idx].append(vector)

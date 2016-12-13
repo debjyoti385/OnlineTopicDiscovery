@@ -21,6 +21,7 @@ class MySentences(object):
                 print os.path.join(subdir,fn)
                 for line_ind,line in enumerate(open(os.path.join(subdir,fn))):
                     #line_data = json.loads(line)
+                    print line_ind, line
                     text = re.findall(text_regex,line)
                     #print text[0]
                     #print 'The tag is - SENT_%s' % (fn+'-'+str(line_ind))
@@ -28,10 +29,10 @@ class MySentences(object):
 
 
 
-def main(model=False):
+def main(inputdir=rootdir,model=False, modelfile=MODEL_LOCATION):
     print 'Program started'
     if model:
-        sentences = MySentences(rootdir)
+        sentences = MySentences(inputdir)
         model = gensim.models.Doc2Vec(alpha=0.025, min_alpha=0.025, min_count=1)
         model.build_vocab(sentences)
         print 'Completed building vocab'
@@ -46,7 +47,7 @@ def main(model=False):
     model_loaded = gensim.models.Doc2Vec.load(MODEL_LOCATION)
     if model_loaded:
         print 'Loaded'
-    print 'Vector is - ',model_loaded.docvecs["SENT_part-02753-372"],' || Length of vector is - ',len(model_loaded.docvecs)
+    #print 'Vector is - ',model_loaded.docvecs["SENT_part-02753-372"],' || Length of vector is - ',len(model_loaded.docvecs)
 
 
 if __name__=="__main__":
@@ -54,5 +55,9 @@ if __name__=="__main__":
                             description='Vectorizer for Online Topic Detection')
     parser.add_argument(
                     '-c','--create', help='Train and create model ', default= False, required=False, action='store_true')
+    parser.add_argument(
+                    '-i','--input', help='input data directory ', default= False, required=True, type=str)
+    parser.add_argument(
+                    '-o','--output', help='output model file ', default= False, required=True, type=str)
     args = parser.parse_args()
-    main(model=args.create)
+    main(inputdir=args.input,model=args.create, modelfile=args.output)
