@@ -1,4 +1,5 @@
 # Author : vinitha, deb
+import ujson
 import numpy as np
 import re
 import sys,os
@@ -56,6 +57,7 @@ class OnlineKMeans(object):
     
  
     clusters = {}
+    clusters_text = {}
     clusters[r] = []
     cluster_count = {}
     cluster_means = {}
@@ -129,7 +131,7 @@ class OnlineKMeans(object):
         return False
 
 
-    def add(self,vector):
+    def add(self,vector, text=""):
         if len(vector) != self.vector_length:
             print "Vector size not compatible, need vector size of " + str(self.vector_length)
             return 
@@ -138,8 +140,11 @@ class OnlineKMeans(object):
         if len(self.points) < self.k +5:
             self.k_actual += 1
             cluster = self.clusters.get(self.k_actual,[])
-            cluster.append(vector.flatten())
+            cluster.append(vector)
             self.clusters[self.k_actual] = cluster
+            cluster_text = self.clusters_text.get(self.k_actual,[])
+            cluster_text.append(text)
+            self.clusters_text[self.k_actual] = cluster_text
             self.cluster_means[self.k_actual] = self.cluster_means.get(self.k_actual,vector)
             self.cluster_count[self.k_actual] = self.cluster_count.get(self.k_actual,0) + 1
             self.w = self.calculate_w() 
@@ -155,8 +160,11 @@ class OnlineKMeans(object):
             if self.isTrue(probability):
                 self.k_actual += 1
                 cluster = self.clusters.get(self.k_actual,[])
-                cluster.append(vector.flatten())
+                cluster.append(vector)
                 self.clusters[self.k_actual] = cluster
+                cluster_text = self.clusters_text.get(self.k_actual,[])
+                cluster_text.append(text)
+                self.clusters_text[self.k_actual] = cluster_text
                 self.cluster_means[self.k_actual] = self.cluster_means.get(self.k_actual,vector)
                 self.cluster_count[self.k_actual] = self.cluster_count.get(self.k_actual,0) + 1
                 self.q[self.r] += 1
@@ -167,7 +175,8 @@ class OnlineKMeans(object):
                     self.f.insert(self.r,  1.1* self.f[self.r -1])
             else:
                 cluster_idx = self.get_nearest_cluster(vector)                
-                self.clusters[cluster_idx].append(vector.flatten())
+                self.clusters[cluster_idx].append(vector)
+                self.clusters_text[cluster_idx].append(text)
                 self.cluster_count[cluster_idx] = self.cluster_count.get(cluster_idx,0) + 1
             return 
             
@@ -195,11 +204,22 @@ def main(k_target,datadir, model_path):
         
         vector = vectorizer.infer_vector(words)
 
-        online_k_means.add(20*vector)
+        online_k_means.add(20*vector,text=tweet)
         if count % 500 ==0:
             print tweet, vector
             print "PROCESSED "+ str(count) + " TWEETS"
-    print online_k_means.clusters.keys()
+    with open("clusters.json",'w') as output:
+        result ={}
+        result["name"] ="cluster"
+        children =[]
+        for key in online_k_means.clusters_text:
+            temp={}
+            temp["name"] = key
+            temp["children"]=[ {"name":point} for point in online_k_means.clusters_text[key]]
+            children.append(temp)
+
+        result["children"]=children
+        output.write(ujson.dumps(result))
 
 if __name__ =="__main__":
     parser = argparse.ArgumentParser(
