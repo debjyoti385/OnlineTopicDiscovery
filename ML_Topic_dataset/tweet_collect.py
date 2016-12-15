@@ -35,7 +35,7 @@ for subdir, dirs, files in os.walk(dirname):
 		stats = api.statuses_lookup(tid)
 		#stweet = [s.text for s in stats]
 		for tweet in stats:
-		    output_file.write("\n"+str(tweet.id)+" * "+str(tweet.text))
+                    output_file.write('\n{"id":'+str(tweet.id)+' ,"text": "'+str(tweet.text.replace('\n',' ').replace('\r',' ')) + '"}')
 		tid = []
 		num_calls += 1
 

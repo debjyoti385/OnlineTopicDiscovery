@@ -71,7 +71,8 @@ class OnlineKMeans(object):
         self.norm = norm
         if k_target < 15 and k_target > 3:
             init_delta = 3
-        self.k = ceil( (k_target - init_delta)/5 ) 
+        #self.k = ceil( (k_target - init_delta)/5 ) 
+        self.k=2
         self.vector_length = vector_length
     
     def point_distance(self,vector, point):
@@ -97,7 +98,7 @@ class OnlineKMeans(object):
         min_value = min_distances[0][1]
         cluster_num = min_distances[0][0]
         #print min_distances 
-        for i in range(min(len(min_distances),3)):
+        for i in range(min(len(min_distances),15)):
             temp = self.cluster_distance(vector, min_distances[i][0])
             if temp < min_value:
                 cluster_num = min_distances[i][0]
@@ -126,7 +127,7 @@ class OnlineKMeans(object):
         sum = 0
         for i in range(min(len(min_distances),10)):
             sum += pow(min_distances[i],2)
-        return sum /2   
+        return sum /10   
 
 
     def isTrue(self,probability):
@@ -141,7 +142,7 @@ class OnlineKMeans(object):
             return 
 
         self.points.append(vector)
-        if len(self.points) < self.k +5:
+        if len(self.points) < self.k +3:
             self.k_actual += 1
             cluster = self.clusters.get(self.k_actual,[])
             cluster.append(vector)
@@ -208,7 +209,7 @@ def main(k_target,datadir, model_path, norm=2, outputfile="output.json"):
         
         vector = vectorizer.infer_vector(words)
 
-        online_k_means.add(20*vector,text=tweet)
+        online_k_means.add(vector_length* vector,text=tweet)
         print count
         if count % 500 ==0:
             print "PROCESSED "+ str(count) + " TWEETS"
