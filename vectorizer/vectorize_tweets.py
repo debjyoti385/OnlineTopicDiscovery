@@ -24,9 +24,10 @@ class MySentences(object):
                     if line_ind % 500==0:
                         print "Processed ", line_ind, " from ", fn
                     text = re.findall(text_regex,line)
-                    #print text[0]
-                    #print 'The tag is - SENT_%s' % (fn+'-'+str(line_ind))
-                    yield LabeledSentence(words=text[0].split(),tags=['SENT_%s' % (fn+'-'+str(line_ind))])
+		    if text:
+                        #print 'text 0 is - ',text[0]
+		        #print 'The tag is - SENT_%s' % (fn+'-'+str(line_ind))
+                        yield LabeledSentence(words=text[0].split(),tags=['SENT_%s' % (fn+'-'+str(line_ind))])
 
 
 
@@ -37,7 +38,7 @@ def main(inputdir=rootdir,model=False, modelfile=MODEL_LOCATION, vector_size = 5
         model = gensim.models.Doc2Vec(size=vector_size, alpha=0.025, min_alpha=0.005, min_count=2, workers=3)
         model.build_vocab(sentences)
         print 'Completed building vocab'
-        for epoch in range(1):
+        for epoch in range(2):
             model.train(sentences)
             model.alpha -= 0.002
             model.min_alpha = model.alpha
@@ -60,8 +61,7 @@ if __name__=="__main__":
                     '-i','--input', help='input data directory ', default= False, required=True, type=str)
     parser.add_argument(
                     '-o','--output', help='output model file ', default= False, required=True, type=str)
-    args = parser.parse_args()
-                    '-n','--size', help='vector size ', default= False, required=True, type=int)
     parser.add_argument(
-                    '-i','--input', help='input data directory ', default= False, required=True, type=str)
-    main(inputdir=args.input,model=args.create, modelfile=str(args.size) +'_'+args.output, vector_size=args.size)
+                    '-n','--size', help='vector size ', default= False, required=True, type=int)
+    args = parser.parse_args()
+    main(inputdir=args.input,model=args.create, modelfile=args.output, vector_size=args.size)
