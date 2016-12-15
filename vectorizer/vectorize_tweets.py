@@ -21,7 +21,8 @@ class MySentences(object):
                 print os.path.join(subdir,fn)
                 for line_ind,line in enumerate(open(os.path.join(subdir,fn))):
                     #line_data = json.loads(line)
-                    print line_ind, line
+                    if line_ind % 500==0:
+                        print "Processed ", line_ind, " from ", fn
                     text = re.findall(text_regex,line)
                     #print text[0]
                     #print 'The tag is - SENT_%s' % (fn+'-'+str(line_ind))
@@ -33,7 +34,7 @@ def main(inputdir=rootdir,model=False, modelfile=MODEL_LOCATION):
     print 'Program started'
     if model:
         sentences = MySentences(inputdir)
-        model = gensim.models.Doc2Vec(alpha=0.025, min_alpha=0.025, min_count=1)
+        model = gensim.models.Doc2Vec(size=50, alpha=0.025, min_alpha=0.005, min_count=2, workers=3)
         model.build_vocab(sentences)
         print 'Completed building vocab'
         for epoch in range(1):
