@@ -8,7 +8,6 @@ import re
 import time
 import gensim.models
 import ujson
-from scipy.spatial.distance import cdist
 
 text_regex =re.compile('\s*\"text\":\s*\"([^"]+)\"')
 
@@ -21,7 +20,7 @@ def load_model():
     vector_len = len(model_loaded.docvecs[0])
     return model_loaded,vector_len
    
-class Kmeans(object):
+class Kmeans_Ext(object):
     num_of_clusters = 0
     test_dir_path = ''
     cluster_means = []
@@ -31,6 +30,7 @@ class Kmeans(object):
     cluster_vectors = dict()
     test_cluster_count = []
     output_file = ''
+    cluster_cost = 0
  
     def __init__(self,num_of_clusters,doc2vec_file,test_dir_path,output_file_path):
      	print 'In init method'
@@ -39,14 +39,10 @@ class Kmeans(object):
   	self.doc2vec_model = gensim.models.Doc2Vec.load(doc2vec_file)
         vector_len = len(self.doc2vec_model.docvecs[0])
 	self.cluster_means = random.sample(self.doc2vec_model.docvecs,self.num_of_clusters)
-        self.cluster_cost = np.zeros((self.num_of_clusters), dtype=np.float)
 	self.test_cluster_count = np.zeros((self.num_of_clusters), dtype=np.int)
 	self.cluster_counts = np.zeros((num_of_clusters,), dtype=np.int)
 	self.output_file = output_file_path    
 	self.compute_cluster_means()
-
-    def get_point_distance(self,vector, point):
-        return np.linalg.norm(vector - point)
 
     def find_closest_mean(self,doc_vector,is_testing=False):
 	min_index = -1
@@ -59,17 +55,8 @@ class Kmeans(object):
 	return min_index,min_dist
 
     def compute_cluster_means(self):
-	#Iterating over all the vectors to adjust cluster means
-    	for element in self.doc2vec_model.docvecs:
-	    best_fit,min_dist = self.find_closest_mean(element,is_testing=False)
-	    self.cluster_counts[best_fit]+=1
-	    self.cluster_cost[best_fit]+=min_dist
-	    diff_vector = np.subtract(self.cluster_means[best_fit],element)
-	    self.cluster_means[best_fit]+=(np.true_divide(diff_vector,self.cluster_counts[best_fit]))
-	    if best_fit in self.cluster_vectors:
-	        self.cluster_vectors[best_fit].append(element)
-	    else:
-		self.cluster_vectors[best_fit] = [element]
+	kmeans_model = KMeans(n_clusters=self.num_of_clusters,random_state=0).fit(self.doc2vec_model.docvecs)
+	self.cluster_means = kmeans.cluster_centers_
 	self.compute_cluster_cost()
 
     def compute_cluster_cost(self):
@@ -78,7 +65,7 @@ class Kmeans(object):
 	    self.cluster_cost+=min_dist
 
     def print_results(self):
-	print 'Cluster count = ',self.num_of_clusters,' Cluster cost = ',self.cluster_cost
+	print 'Number of clusters = ',self.num_of_clusters,' Cost = ',self.cluster_cost
 
     def classify_test_data(self):
 	test_classification = dict()
@@ -113,14 +100,14 @@ class Kmeans(object):
 
  
 def main(num_of_clusters,doc2vec_file,test_dir_path,output_file_path):
-    k_means = Kmeans(num_of_clusters,doc2vec_file,test_dir_path,output_file_path)
+    k_means = Kmeans_ext(num_of_clusters,doc2vec_file,test_dir_path,output_file_path)
     k_means.classify_test_data()
     k_means.print_results()
     
 
 if __name__ =="__main__":
     parser = argparse.ArgumentParser(
-                            description='Algorithm for Sequential K means')
+                            description='Algorithm for K means')
     parser.add_argument(
                     '-k','--k', type=int, help='Target number of clusters ', default= False, required=True)
     parser.add_argument(
