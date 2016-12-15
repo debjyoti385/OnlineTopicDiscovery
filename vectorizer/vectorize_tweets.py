@@ -30,11 +30,11 @@ class MySentences(object):
 
 
 
-def main(inputdir=rootdir,model=False, modelfile=MODEL_LOCATION):
+def main(inputdir=rootdir,model=False, modelfile=MODEL_LOCATION, vector_size = 50):
     print 'Program started'
     if model:
         sentences = MySentences(inputdir)
-        model = gensim.models.Doc2Vec(size=50, alpha=0.025, min_alpha=0.005, min_count=2, workers=3)
+        model = gensim.models.Doc2Vec(size=vector_size, alpha=0.025, min_alpha=0.005, min_count=2, workers=3)
         model.build_vocab(sentences)
         print 'Completed building vocab'
         for epoch in range(1):
@@ -61,4 +61,7 @@ if __name__=="__main__":
     parser.add_argument(
                     '-o','--output', help='output model file ', default= False, required=True, type=str)
     args = parser.parse_args()
-    main(inputdir=args.input,model=args.create, modelfile=args.output)
+                    '-n','--size', help='vector size ', default= False, required=True, type=int)
+    parser.add_argument(
+                    '-i','--input', help='input data directory ', default= False, required=True, type=str)
+    main(inputdir=args.input,model=args.create, modelfile=str(args.size) +'_'+args.output, vector_size=args.size)
