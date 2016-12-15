@@ -56,6 +56,7 @@ class OnlineKMeans(object):
     vector_length = 0
     
  
+    cost = 0
     clusters = {}
     clusters_text = {}
     clusters[r] = []
@@ -111,10 +112,12 @@ class OnlineKMeans(object):
         cluster_idx = 1
         for key in self.cluster_means.keys():
             dist = self.point_distance(vector, self.cluster_means[key])
+            print "DISTANCE " +  str(dist)
             if dist < min:
                 cluster_idx = key
                 min = dist
-        return cluster_idx
+        print "MIN DISTANCE " +  str(min)
+        return cluster_idx, min
 
     def calculate_w(self):
         min_distances = []
@@ -134,6 +137,24 @@ class OnlineKMeans(object):
         if random.uniform(0, 1) < probability:
             return True
         return False
+
+    def get_clusters_and_cost(self,vector_list, text_list):
+        cost =0
+        report_cluster = {}
+        
+        for i in range(len(vector_list)):
+            vector = vector_list[i]
+            text = text_list[i]
+            
+            cluster_idx, distance  = self.get_nearest_cluster(vector)
+            print "Got CLUSTER NO: " + str(cluster_idx) + "with distance" + str(distance)
+            distance  = self.point_distance(self.cluster_means[cluster_idx],vector)
+            cost += distance
+            cluster = report_cluster.get(cluster_idx, [])
+            cluster.append(text)
+            report_cluster[cluster_idx] = cluster
+        return report_cluster, cost
+            
 
 
     def add(self,vector, text=""):
@@ -179,7 +200,8 @@ class OnlineKMeans(object):
                     self.q.insert(self.r, 0)
                     self.f.insert(self.r,  1.05* self.f[self.r -1])
             else:
-                cluster_idx = self.get_nearest_cluster(vector)                
+                cluster_idx, distance = self.get_nearest_cluster(vector)                
+                self.cost += distance
                 self.clusters[cluster_idx].append(vector)
                 self.clusters_text[cluster_idx].append(text)
                 self.cluster_count[cluster_idx] = self.cluster_count.get(cluster_idx,0) + 1
@@ -189,6 +211,9 @@ class OnlineKMeans(object):
 def extract_tweet(line):
     text = re.findall(TWEET_REGEX,line)
     return text[0]
+
+
+
 
 
 def main(k_target,datadir, model_path, norm=2, outputfile="output.json"):
@@ -213,6 +238,10 @@ def main(k_target,datadir, model_path, norm=2, outputfile="output.json"):
         print count
         if count % 500 ==0:
             print "PROCESSED "+ str(count) + " TWEETS"
+
+    vector_list = [ vectorizer.infer_vector(tweet.split()) for tweet in tweets]
+    tweet_list = [ tweet for tweet in tweets]
+    
     with open(outputfile,'w') as output:
         result ={}
         result["name"] ="cluster"
@@ -225,6 +254,10 @@ def main(k_target,datadir, model_path, norm=2, outputfile="output.json"):
 
         result["children"]=children
         output.write(ujson.dumps(result))
+    print "K target = "+ str(online_k_means.k_target)
+    print "K actual = "+ str(online_k_means.k_actual)
+    print "Cluster Cost = " + str(online_k_means.cost )
+
 
 if __name__ =="__main__":
     parser = argparse.ArgumentParser(
