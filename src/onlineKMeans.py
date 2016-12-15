@@ -112,11 +112,11 @@ class OnlineKMeans(object):
         cluster_idx = 1
         for key in self.cluster_means.keys():
             dist = self.point_distance(vector, self.cluster_means[key])
-            print "DISTANCE " +  str(dist)
+            #print "DISTANCE " +  str(dist)
             if dist < min:
                 cluster_idx = key
                 min = dist
-        print "MIN DISTANCE " +  str(min)
+        #print "MIN DISTANCE " +  str(min)
         return cluster_idx, min
 
     def calculate_w(self):
@@ -130,7 +130,7 @@ class OnlineKMeans(object):
         sum = 0
         for i in range(min(len(min_distances),10)):
             sum += pow(min_distances[i],2)
-        return sum /10   
+        return sum /2   
 
 
     def isTrue(self,probability):
@@ -147,7 +147,7 @@ class OnlineKMeans(object):
             text = text_list[i]
             
             cluster_idx, distance  = self.get_nearest_cluster(vector)
-            print "Got CLUSTER NO: " + str(cluster_idx) + "with distance" + str(distance)
+            #print "Got CLUSTER NO: " + str(cluster_idx) + "with distance" + str(distance)
             distance  = self.point_distance(self.cluster_means[cluster_idx],vector)
             cost += distance
             cluster = report_cluster.get(cluster_idx, [])
@@ -163,7 +163,7 @@ class OnlineKMeans(object):
             return 
 
         self.points.append(vector)
-        if len(self.points) < self.k +3:
+        if len(self.points) < self.k +5:
             self.k_actual += 1
             cluster = self.clusters.get(self.k_actual,[])
             cluster.append(vector)
@@ -179,10 +179,10 @@ class OnlineKMeans(object):
             return 
         else:
             distance, cluster_num =  self.D(vector)
-            print distance
+            #print distance
             #print self.f[self.r]
             probability = min(pow(distance,2)/self.f[self.r],1.0)
-            print probability
+            #print probability
             if self.isTrue(probability):
                 self.k_actual += 1
                 cluster = self.clusters.get(self.k_actual,[])
@@ -221,7 +221,7 @@ def main(k_target,datadir, model_path, norm=2, outputfile="output.json"):
     vectorizer = gensim.models.Doc2Vec.load(model_path)
     vector_length = len(vectorizer.docvecs[0])
 
-    online_k_means = OnlineKMeans(k_target=20, vector_length=vector_length, norm=norm)
+    online_k_means = OnlineKMeans(k_target=k_target, vector_length=vector_length, norm=norm)
     count  = 0
     for tweet in tweets: 
         count +=1
@@ -235,7 +235,6 @@ def main(k_target,datadir, model_path, norm=2, outputfile="output.json"):
         vector = vectorizer.infer_vector(words)
 
         online_k_means.add(vector_length* vector,text=tweet)
-        print count
         if count % 500 ==0:
             print "PROCESSED "+ str(count) + " TWEETS"
 
@@ -256,7 +255,7 @@ def main(k_target,datadir, model_path, norm=2, outputfile="output.json"):
         output.write(ujson.dumps(result))
     print "K target = "+ str(online_k_means.k_target)
     print "K actual = "+ str(online_k_means.k_actual)
-    print "Cluster Cost = " + str(online_k_means.cost )
+    print "Cluster Cost = " + str(online_k_means.cost/vector_length )
 
 
 if __name__ =="__main__":
